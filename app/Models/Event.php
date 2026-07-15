@@ -8,5 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['title','description','image_thumb','start_at','end_at','location','status'])]
 class Event extends Model
 {
-    //
+    public function ticketCategories(){
+        return $this->hasMany(Event::class);
+    }
 }
