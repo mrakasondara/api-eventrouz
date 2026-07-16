@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EventResource extends JsonResource
+class EventWithTicketResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -24,7 +24,7 @@ class EventResource extends JsonResource
             'end_at' => $this->end_at,
             'location' => $this->location,
             'status' => $this->status,
-            'ticket_categories' => TicketCategoryResource::collection($this->whenLoaded('ticketCategories'))
+            'ticket_categories' => TicketWithEventResource::collection($this->whenLoaded('ticketCategories'))
         ];
     }
 }

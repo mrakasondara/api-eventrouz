@@ -12,10 +12,11 @@ Route::prefix('v1')->group(function (){
     
     Route::middleware('auth:sanctum')->group(function(){
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/events', [EventController::class, 'store']);
-
-        Route::post('/events/{event_id}/ticket-categories', [TicketCategoryController::class, 'store']);
         
+        Route::post('/events', [EventController::class, 'store']);
+        Route::delete('/events/{id}', [EventController::class, 'destroy']);
+        
+        Route::post('/events/{event_id}/ticket-categories', [TicketCategoryController::class, 'store']);
         Route::get('/events/ticket-categories', [TicketCategoryController::class, 'index']);
         Route::get('/events/{event_id}/ticket-categories', [TicketCategoryController::class, 'show']);
         Route::get('/events/{event_id}/ticket-categories/{ticket_id}', [TicketCategoryController::class, 'showDetail']);

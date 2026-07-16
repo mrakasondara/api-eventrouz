@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventStoreRequest;
 use App\Http\Resources\EventResource;
+use App\Http\Resources\EventWithTicketResource;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,7 +74,7 @@ class EventController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-             DB::rollBack();
+            DB::rollBack();
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
                 'error' => $e->getMessage()
@@ -84,7 +85,7 @@ class EventController extends Controller
     public function show($id)
     {
         try {
-            $event = Event::where('id', $id)->first();
+            $event = Event::with('ticketCategories')->findOrFail($id);
 
             if(!$event){
                 return response()->json([
@@ -95,7 +96,35 @@ class EventController extends Controller
 
             return response()->json([
                 'message' => 'Event berhasil ditampilkan',
-                'data' => new EventResource($event)
+                'data' => new EventWithTicketResource($event)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan',
+                'data' => null,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        if(auth()->user()->role == 'user'){
+            return response()->json([
+                'message' => 'Anda tidak memiliki akses.',
+            ], 403);
+        }
+
+
+        try {
+            $record = Event::find($id);
+
+            if($record){
+                $record->delete();
+            }
+
+            return response()->json([
+                'message' => 'Event berhasil dihapus',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
