@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterStoreRequest;
+use App\Http\Requests\LoginStoreRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,15 +26,12 @@ class AuthController extends Controller
             $user->email = $data['email'];
             $user->password = Hash::make($data['password']);
             $user->save();
-
-            $token = $user->createToken('auth_token')->plainTextToken;
-
             DB::commit();
 
             return response()->json([
                 'message' => 'Register berhasil!',
+                'success' => true,
                 'data' => [
-                    'token' => $token,
                     'data' => new UserResource($user)
                     ]
                 ], 201);
@@ -42,18 +40,22 @@ class AuthController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
+                'success' => false,
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
-    public function login(Request $request)
+    public function login(LoginStoreRequest $request)
     {
+        $credentials = $request->validated();
+
         try {
-            if(!Auth::guard('web')->attempt($request->only('email','password'))){
+            if(!Auth::attempt($credentials)){
                 return response()->json([
                     'message' => 'Unauthorized!',
-                    'data' => null
+                    'success' => false,
+                    'data' => $credentials
                 ], 401);
             }
 
@@ -62,6 +64,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Login berhasil!',
+                'success' => true,
                 'data' => [
                     'token' => $token,
                     'user' => new UserResource($user)
@@ -71,7 +74,8 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
-                'error' => $e->getMessage()
+                'success' => false,
+                'error' => $th->getMessage()
             ], 500);
         }
     }
@@ -86,16 +90,19 @@ class AuthController extends Controller
     
                 return response()->json([
                     'message' => 'Logout berhasil',
+                    'success' => true,
                     'data' => null
                 ], 200);
             }
 
             return response()->json([
-                'message' => 'Kamu memang belum login atau token sudah tidak valid.'
+                'message' => 'Kamu memang belum login atau token sudah tidak valid.',
+                'success' => false
             ], 401);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
+                'success' => false,
                 'error' => $e->getMessage()
             ], 500);
         }
