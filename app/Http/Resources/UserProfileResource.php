@@ -20,6 +20,7 @@ class UserProfileResource extends JsonResource
             'gender' => $this->gender,
             'email' => $this->email,
             'address' => $this->address,
+            'phone_number' => $this->phone_number,
             'image_profile' => $this->image_profile
         ];
     }
