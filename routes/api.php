@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\TicketCategoryController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (){
@@ -11,6 +12,7 @@ Route::prefix('v1')->group(function (){
     Route::post('/login', [AuthController::class, 'login']);
     
     Route::middleware('auth:sanctum')->group(function(){
+        Route::get('/profile', [UserController::class, 'show']);
         Route::post('/logout', [AuthController::class, 'logout']);
         
         Route::post('/events', [EventController::class, 'store']);
