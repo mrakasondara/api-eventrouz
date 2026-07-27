@@ -28,6 +28,10 @@ class EventController extends Controller
                 $query->where('status', $request->status);
             }
 
+            if($request->limit){
+                $query->limit($request->limit);
+            }
+
             $events = $query->get();
 
             return response()->json([
