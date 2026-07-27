@@ -31,7 +31,7 @@ class TicketCategoryController extends Controller
             $ticketCategories = $query->get();
 
             return response()->json([
-                'message' => 'Event berhasil ditampilkan',
+                'message' => 'Ticket event berhasil ditampilkan',
                 'data' => TicketCategoryResource::collection($ticketCategories)
             ], 200);
         } catch (\Exception $e) {
@@ -61,7 +61,7 @@ class TicketCategoryController extends Controller
             }
     
             return response()->json([
-                'message' => 'Event berhasil ditampilkan',
+                'message' => 'Ticket event ditampilkan',
                 'data' => $ticketCategory
             ], 200);
 
