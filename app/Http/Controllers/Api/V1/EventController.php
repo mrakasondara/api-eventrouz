@@ -35,11 +35,13 @@ class EventController extends Controller
             $events = $query->get();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Event berhasil ditampilkan',
                 'data' => EventResource::collection($events)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null
             ], 500);
@@ -50,6 +52,7 @@ class EventController extends Controller
     {
         if(auth()->user()->role == 'user'){
             return response()->json([
+                'success' => false,
                 'message' => 'Anda tidak memiliki akses.',
             ], 403);
         }
@@ -73,6 +76,7 @@ class EventController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Event berhasil ditambahkan',
                 'data' => new EventResource($event)
             ], 201);
@@ -80,6 +84,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
+                'success' => false,
                 'message' => 'Terjadi Kesalahan',
                 'error' => $e->getMessage()
             ], 500);
