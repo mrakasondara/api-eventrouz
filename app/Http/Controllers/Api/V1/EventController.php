@@ -17,21 +17,24 @@ class EventController extends Controller
         try {
             $query = Event::query();
 
+            
+            $query->when($request->filled('search'), function ($q) use ($request){
+                $q->where(function ($subQuery) use ($request){
+                    $subQuery->where('title', 'like','%'. $request->search . '%')
+                            ->orWhere('description', 'like','%'. $request->search . '%');
+                });
+            });
+
+            $query->when($request->filled('status'), function ($q) use ($request){
+                $q->where('status', $request->status);
+            });
+
+            $query->when($request->filled('limit'), function ($q) use ($request){
+                $q->limit((int) $request->limit);
+            });
+
             $query->orderBy('created_at','desc');
             
-            if($request->search){
-                $query->where('title','like', '%' . $request->search . '%')
-                    ->orWhere('description','like', '%' . $request->search . '%');
-            }
-
-            if($request->status){
-                $query->where('status', $request->status);
-            }
-
-            if($request->limit){
-                $query->limit($request->limit);
-            }
-
             $events = $query->get();
 
             return response()->json([
