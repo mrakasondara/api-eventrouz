@@ -13,6 +13,8 @@ Route::prefix('v1')->group(function (){
     
     Route::middleware('auth:sanctum')->group(function(){
         Route::get('/profile', [UserController::class, 'show']);
+        Route::put('/profile/personal-information', [UserController::class, 'updateDetails']);
+
         Route::post('/logout', [AuthController::class, 'logout']);
         
         Route::post('/events', [EventController::class, 'store']);
