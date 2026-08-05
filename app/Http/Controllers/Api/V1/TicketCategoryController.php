@@ -17,6 +17,7 @@ class TicketCategoryController extends Controller
     {
         if(auth()->user()->role == 'user'){
             return response()->json([
+                'success' => false,
                 'message' => 'Anda tidak memiliki akses.'
             ],403);
         }
@@ -31,11 +32,13 @@ class TicketCategoryController extends Controller
             $ticketCategories = $query->get();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Ticket event berhasil ditampilkan',
                 'data' => TicketCategoryResource::collection($ticketCategories)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null
             ], 500);
@@ -49,18 +52,21 @@ class TicketCategoryController extends Controller
     
             if(!$ticketCategory){
                 return response()->json([
+                    'success' => false,
                     'message' => 'Ticket category tidak ditemukan.',
                     'data' => null
                 ],404);
             }
     
             return response()->json([
+                'success' => true,
                 'message' => 'Ticket event ditampilkan',
                 'data' => $ticketCategory
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null
             ], 500);
@@ -71,6 +77,7 @@ class TicketCategoryController extends Controller
     {
         if(auth()->user()->role == 'user'){
             return response()->json([
+                'success' => false,
                 'message' => 'Anda tidak memiliki akses.'
             ],403);
         }
@@ -80,23 +87,27 @@ class TicketCategoryController extends Controller
     
             if(!$ticketCategory){
                 return response()->json([
+                    'success' => false,
                     'message' => 'Ticket category tidak ditemukan.',
                     'data' => null
                 ],404);
             }
     
             return response()->json([
+                'success' => true,
                 'message' => 'Event berhasil ditampilkan',
                 'data' => new TicketCategoryResource($ticketCategory)
             ], 200);
 
         }   catch (ModelNotFoundException $e) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Ticket category tidak ditemukan.',
                     'data' => null
                 ], 404);
         }   catch (\Exception $e) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Terjadi kesalahan',
                     'data' => null
                 ], 500);
@@ -107,6 +118,7 @@ class TicketCategoryController extends Controller
     {
         if(auth()->user()->role == 'user'){
             return response()->json([
+                'success' => false,
                 'message' => 'Anda tidak memiliki akses.'
             ],403);
         }
@@ -120,6 +132,7 @@ class TicketCategoryController extends Controller
 
             if(!$event){
                 return response()->json([
+                    'success' => false,
                     'message' => 'Event tidak ditemukan.',
                     'data' => null
                 ],404);
@@ -136,6 +149,7 @@ class TicketCategoryController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Ticket category berhasil ditambahkan.',
                 'data' => new TicketCategoryResource($ticketCategory)
             ], 201);
@@ -143,6 +157,7 @@ class TicketCategoryController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
+               'success' => false,
                'message' => 'Terjadi Kesalahan',
                'error' => $e->getMessage()
             ], 500);

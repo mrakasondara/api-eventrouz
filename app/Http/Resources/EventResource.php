@@ -24,6 +24,7 @@ class EventResource extends JsonResource
             'end_at' => $this->end_at,
             'location' => $this->location,
             'status' => $this->status,
+            'updated_at' => $this->updated_at,
             'ticket_categories' => TicketCategoryResource::collection($this->whenLoaded('ticketCategories'))
         ];
     }

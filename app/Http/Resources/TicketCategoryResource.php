@@ -20,7 +20,8 @@ class TicketCategoryResource extends JsonResource
             'name' => $this->name,
             'price' => $this->price,
             'quota' => $this->quota,
-            'reserved' => $this->reserved
+            'reserved' => $this->reserved,
+            'updated_at' => $this->updated_at
         ];
     }
 }
