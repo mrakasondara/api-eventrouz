@@ -44,12 +44,6 @@ class TicketCategoryController extends Controller
     
     public function show(Request $request, $event_id)
     {
-        if(auth()->user()->role == 'user'){
-            return response()->json([
-                'message' => 'Anda tidak memiliki akses.'
-            ],403);
-        }
-
         try {
             $ticketCategory = TicketCategory::where('event_id', $event_id)->get();
     
