@@ -7,11 +7,19 @@ use App\Http\Requests\EventStoreRequest;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\EventWithTicketResource;
 use App\Models\Event;
+use App\Services\AppwriteStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
+    protected AppwriteStorageService $appwriteStorage;
+
+    public function __construct(AppwriteStorageService $appwriteStorage)
+    {
+        $this->appwriteStorage = $appwriteStorage;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -68,14 +76,25 @@ class EventController extends Controller
             $event = new Event();
             $event->title = $data['title'];
             $event->description = $data['description'];
-            $event->image_thumb = $data['image_thumb'];
             $event->start_at = $data['start_at'];
             $event->end_at = $data['end_at'];
             $event->location = $data['location'];
             $event->status = $data['status'];
 
-            $event->save();
+            $response = $this->appwriteStorage->uploadFile($request->file('image_thumb'));
 
+            $fileId = $response['$id'] ?? null;
+
+            if(!$fileId){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mendapatkan File ID dari Appwrite.'
+                ], 500);
+            }
+
+            $event->image_thumb = $fileId;
+            $event->save();
+            
             DB::commit();
 
             return response()->json([
@@ -83,6 +102,7 @@ class EventController extends Controller
                 'message' => 'Event berhasil ditambahkan',
                 'data' => new EventResource($event)
             ], 201);
+
 
         } catch (\Exception $e) {
             DB::rollBack();

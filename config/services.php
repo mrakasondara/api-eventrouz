@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'appwrite' => [
+        'endpoint' => env('APPWRITE_ENDPOINT'),
+        'project_id' => env('APPWRITE_PROJECT_ID'),
+        'api_key' => env('APPWRITE_API_KEY'),
+        'bucket_id' => env('APPWRITE_BUCKET_ID')
+    ],
 ];

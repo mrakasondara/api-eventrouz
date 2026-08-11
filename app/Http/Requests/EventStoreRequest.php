@@ -17,11 +17,22 @@ class EventStoreRequest extends FormRequest
         return [
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:255',
-            'image_thumb' => 'required|string|max:255',
+            'image_thumb' => 'required|image|mimes:jpeg,png,jpg,webp|max:20480',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
             'location' => 'required|string|max:255',
             'status' => 'required|string|in:draft,launch,end',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'title.required'       => 'Judul event wajib diisi.',
+            'image_thumb.required' => 'Gambar poster/thumbnail wajib diunggah.',
+            'image_thumb.max'      => 'Ukuran gambar tidak boleh melebihi 20 MB.',
+            'end_at.after'         => 'Tanggal selesai harus setelah tanggal mulai.',
+            'status.in'            => 'Status event tidak valid.',
         ];
     }
 }
