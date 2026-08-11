@@ -42,5 +42,13 @@
 
            return $response->json();
         }
+
+        public function getFileViewUrl(?string $fileId): ?string
+        {
+            if(!$fileId) return null;
+
+            return "{$this->endpoint}/storage/buckets/{$this->bucketId}/files/{$fileId}/view?project={$this->projectId}";
+        }
+        
     }
     
