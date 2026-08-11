@@ -143,6 +143,7 @@ class EventController extends Controller
     {
         if(auth()->user()->role == 'user'){
             return response()->json([
+                'success' => false,
                 'message' => 'Anda tidak memiliki akses.',
             ], 403);
         }
@@ -156,10 +157,12 @@ class EventController extends Controller
             }
 
             return response()->json([
+                'success' => true,
                 'message' => 'Event berhasil dihapus',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null
             ], 500);
