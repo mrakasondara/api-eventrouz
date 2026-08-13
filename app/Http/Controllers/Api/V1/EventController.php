@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventPutRequest;
 use App\Http\Requests\EventStoreRequest;
+use App\Http\Resources\EventOptionResource;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\EventWithTicketResource;
 use App\Models\Event;
@@ -58,6 +59,33 @@ class EventController extends Controller
                 'data' => null
             ], 500);
         }
+    }
+
+    public function options()
+    {
+        if(auth()->user()->role == 'user'){
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses.',
+            ], 403);
+        }
+
+        try {
+            $events = Event::select('id','title')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => EventOptionResource::collection($events)
+            ], 200);
+
+        }  catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan',
+                'data' => null
+            ], 500);
+        }
+        
     }
 
     public function store(EventStoreRequest $request)
