@@ -43,6 +43,24 @@
            return $response->json();
         }
 
+        public function deleteFile(?string $fileId): bool
+        {
+            if(!$fileId) return false;
+
+            $url = "{$this->endpoint}/storage/buckets/{$this->bucketId}/files/{$fileId}";
+
+            $response = HTTP::withHeaders([
+                'x-appwrite-project' => $this->projectId,
+                'x-appwrite-key' => $this->apiKey,
+            ])->delete($url);
+
+            if($response->successful()) return true;
+
+            if($response->status() === 404) return true;
+
+            throw new \Exception("Gagal menghapus file" . $response->body());
+        }
+
         public function getFileViewUrl(?string $fileId): ?string
         {
             if(!$fileId) return null;
