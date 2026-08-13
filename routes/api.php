@@ -18,6 +18,7 @@ Route::prefix('v1')->group(function (){
         Route::post('/logout', [AuthController::class, 'logout']);
         
         Route::post('/events', [EventController::class, 'store']);
+        Route::put('/events/{id}', [EventController::class, 'put']);
         Route::delete('/events/{id}', [EventController::class, 'destroy']);
         
         Route::post('/events/{event_id}/ticket-categories', [TicketCategoryController::class, 'store']);

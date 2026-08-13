@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EventPutRequest;
 use App\Http\Requests\EventStoreRequest;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\EventWithTicketResource;
@@ -114,6 +115,62 @@ class EventController extends Controller
         }
     }
 
+    public function put(EventPutRequest $request, $id) 
+    {
+        if(auth()->user()->role == 'user'){
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses.',
+            ], 403);
+        }
+
+        $data = $request->validated();
+
+        try {
+            $event = Event::findOrFail($id);
+            
+            if($request->hasFile('image_thumb')){
+
+                // upload image baru
+                
+                $response = $this->appwriteStorage->uploadFile($request->file('image_thumb'));
+                $fileId = $response['$id'] ?? null;
+
+                if(!$fileId){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mendapatkan File ID dari Appwrite.'
+                    ], 500);
+                }
+
+                $data['image_thumb'] = $fileId;
+
+                $oldImage = $event->image_thumb;
+
+                // hapus image lama
+                if($oldImage){
+                    $this->appwriteStorage->deleteFile($oldImage);
+                }
+            }
+
+            $event->update($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event berhasil diupdate',
+                'data' => new EventResource($event->fresh())
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan',
+                'data' => null,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function show($id)
     {
         try {
@@ -121,17 +178,20 @@ class EventController extends Controller
 
             if(!$event){
                 return response()->json([
+                    'success' => false,
                     'message' => 'Event tidak ditemukan',
                     'data' => null
                 ], 404);
             }
 
             return response()->json([
+                'success' => true,
                 'message' => 'Event berhasil ditampilkan',
                 'data' => new EventWithTicketResource($event)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null,
                 'error' => $e->getMessage()
