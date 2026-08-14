@@ -236,17 +236,21 @@ class EventController extends Controller
             ], 403);
         }
 
-
         try {
             $record = Event::find($id);
 
             if($record){
+                $image = $record['image_thumb'];
+                if($image){
+                    $this->appwriteStorage->deleteFile($image);
+                }
                 $record->delete();
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Event berhasil dihapus',
+                'data' => $image
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
