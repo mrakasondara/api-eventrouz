@@ -166,4 +166,35 @@ class TicketCategoryController extends Controller
        }
     }
 
+    public function destroy($event_id, $ticket_id)
+    {
+        if(auth()->user()->role == 'user'){
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses.',
+            ], 403);
+        }
+
+        try {
+            $record = TicketCategory::where('id', $ticket_id)->where('event_id', $event_id)->firstOrFail();
+
+
+            if($record){
+                $record->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori tiket berhasil dihapus',
+            ], 200);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan',
+                'data' => null
+            ], 500);
+        }
+    }
+
 }
