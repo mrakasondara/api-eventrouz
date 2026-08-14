@@ -29,6 +29,8 @@ class TicketCategoryController extends Controller
                 $query->where('name', 'like', '%' . $request->search . '%');
             }
 
+            $query->orderBy('created_at','desc');
+
             $ticketCategories = $query->get();
 
             return response()->json([
