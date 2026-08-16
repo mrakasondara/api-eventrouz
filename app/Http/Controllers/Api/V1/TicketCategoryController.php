@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TicketCategoryPutRequest;
 use App\Http\Requests\TicketCategoryStoreRequest;
 use App\Http\Resources\TicketCategoryResource;
 use App\Models\Event;
@@ -164,6 +165,39 @@ class TicketCategoryController extends Controller
                'error' => $e->getMessage()
             ], 500);
        }
+    }
+
+    public function put(TicketCategoryPutRequest $request, $event_id, $ticket_id)
+    {
+        if(auth()->user()->role == 'user'){
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses.',
+            ], 403);
+        }
+
+            $data = $request->validated();
+
+        try {
+            
+            $ticketCategory = TicketCategory::where('id', $ticket_id)->where('event_id', $event_id)->firstOrFail();
+            
+
+            $ticketCategory->update($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ticket category berhasil diubah.',
+                'data' => new TicketCategoryResource($ticketCategory)
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage()
+             ], 500);
+        }
     }
 
     public function destroy($event_id, $ticket_id)

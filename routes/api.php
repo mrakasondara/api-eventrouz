@@ -28,6 +28,7 @@ Route::prefix('v1')->group(function (){
         Route::delete('/events/{event_id}/ticket-categories/{ticket_id}', [TicketCategoryController::class, 'destroy']);
         Route::get('/events/{event_id}/ticket-categories', [TicketCategoryController::class, 'show']);
         Route::get('/events/{event_id}/ticket-categories/{ticket_id}', [TicketCategoryController::class, 'showDetail']);
+        Route::put('/events/{event_id}/ticket-categories/{ticket_id}', [TicketCategoryController::class, 'put']);
 
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders', [OrderController::class, 'index']);
