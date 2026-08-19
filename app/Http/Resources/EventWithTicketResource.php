@@ -20,6 +20,7 @@ class EventWithTicketResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'image_thumb' => $this->image_thumb,
+            'image_thumb_url' => $this->image_thumb_url,
             'start_at' => $this->start_at,
             'end_at' => $this->end_at,
             'location' => $this->location,
