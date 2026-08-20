@@ -24,11 +24,17 @@ class UserController extends Controller
         try {
             $query = User::query();
 
+            $query->where('role', 'user');
+
             $query->when($request->filled('search'), function ($q) use ($request){
                 $q->where(function ($subQuery) use ($request){
                     $subQuery->where('name', 'like','%'. $request->search . '%')
                             ->orWhere('email', 'like','%'. $request->search . '%');
                 });
+            });
+
+            $query->when($request->filled('limit'), function ($q) use ($request){
+                $q->limit((int) $request->limit);
             });
 
             $query->orderBy('created_at', 'desc');
