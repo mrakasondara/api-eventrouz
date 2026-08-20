@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderResource extends JsonResource
+class OrderDetailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,10 +16,11 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'total_price' => $this->total_price,
-            'status' => $this->status,
-            'created_at' => $this->created_at->format('d M Y H:i'),
-            'details' => OrderDetailResource::collection($this->whenLoaded('ordersDetails'))
+            'ticket_code' => $this->ticket_code,
+            'quantity' => $this->quantity,
+            'price' => $this->price,
+            'ticket_category_name' => $this->ticketCategory?->name,
+            'event_title' => $this->ticketCategory?->event?->title
         ];
     }
 }

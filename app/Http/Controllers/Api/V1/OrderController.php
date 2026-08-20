@@ -32,11 +32,13 @@ class OrderController extends Controller
         $orders = $query->get();
 
         return response()->json([
+            'success' => true,
             'message' => 'Order berhasil ditampilkan',
             'data' => $isUser ? $orders : OrderResource::collection($orders)
         ], 200);
     } catch (\Exception $e) {
         return response()->json([
+            'success' => false,
             'message' => 'Terjadi kesalahan',
             'data' => null
         ], 500);
@@ -56,6 +58,7 @@ class OrderController extends Controller
         // only user can order ticket
         if(auth()->user()->role == 'admin'){
             return response()->json([
+                'success' => false,
                 'message' => 'Hanya user yang memiliki akses.'
             ],403);
         }
@@ -79,6 +82,7 @@ class OrderController extends Controller
             $ordersDetailsData[] = [
                 'ticket_category_id' => $item['ticket_category_id'],
                 'quantity' => $item['quantity'],
+                'price' => $category->price,
                 'ticket_code' => 'ETZ-'.Rand(10000,99999),
             ];
 
@@ -101,15 +105,42 @@ class OrderController extends Controller
         DB::commit();
 
         return response()->json([
+            'success' => true,
             'message' => 'Order berhasil dibuat',
             'data' => new OrderResource($order)
         ],201);
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
+           'success' => false,
            'message' => 'Terjadi Kesalahan',
            'error' => $e->getMessage()
         ], 500);
+    }
+  }
+
+  public function show($id) {
+    try {
+        if(auth()->user()->role == 'admin'){
+            $order = Order::with(['ordersDetails.ticketCategory.event'])
+                ->findOrFail($id);
+        } else {
+            $order = Order::with(['ordersDetails.ticketCategory.event'])
+                ->where('user_id', auth()->id())
+                ->findOrFail($id);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Order detail berhasil ditampilkan',
+            'data' => new OrderResource($order)
+        ],200);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Order tidak ditemukan atau Anda tidak memiliki akses.',
+            'data'    => null
+        ], 404);
     }
   }
 }
