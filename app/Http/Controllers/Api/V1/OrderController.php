@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderStoreRequest;
+use App\Http\Resources\Admin\AdminOrderResource;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\TicketCategory;
@@ -17,24 +18,30 @@ class OrderController extends Controller
   {
 
     try {
-        $query = Order::query();
+        $query = Order::with(['user']);
 
-        $isUser = auth()->user()->role == 'user';
+        $isUser = auth()->user()->role === 'user';
 
-        if($isUser){
-            $query->where('user_id', auth()->user()->id);
-        }
+        $query->when($isUser, function ($q){
+            $q->where('user_id', auth()->id());
+        });
 
-        if($request->status){
-            $query->where('status', $request->status);
-        }
+        $query->when($request->filled('status'), function ($q) use ($request){
+            $q->where('status', $request->status);
+        });
+        
+        $query->orderBy('created_at','desc');
+
+        $query->when($request->filled('limit'), function ($q) use ($request){
+            $q->limit((int) $request->limit);
+        });
 
         $orders = $query->get();
 
         return response()->json([
             'success' => true,
-            'message' => 'Order berhasil ditampilkan',
-            'data' => $isUser ? $orders : OrderResource::collection($orders)
+            'message' => 'Data transaksi berhasil ditampilkan',
+            'data' => $isUser ? OrderResource::collection($orders) : AdminOrderResource::collection($orders)
         ], 200);
     } catch (\Exception $e) {
         return response()->json([
