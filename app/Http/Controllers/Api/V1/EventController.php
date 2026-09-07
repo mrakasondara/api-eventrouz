@@ -71,7 +71,7 @@ class EventController extends Controller
         }
 
         try {
-            $events = Event::select('id','title')->get();
+            $events = Event::select('id','title','start_at','end_at')->get();
 
             return response()->json([
                 'success' => true,
