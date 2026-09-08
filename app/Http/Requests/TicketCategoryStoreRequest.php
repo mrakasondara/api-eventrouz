@@ -8,6 +8,13 @@ use Illuminate\Foundation\Http\FormRequest;
 class TicketCategoryStoreRequest extends FormRequest
 {
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'is_package' => filter_var($this->is_package, FILTER_VALIDATE_BOOLEAN)
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -18,8 +25,10 @@ class TicketCategoryStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'price' => 'required|integer',
+            'is_package' => 'required|boolean',
+            'event_ticket_date' => 'nullable|array',
+            'event_ticket_date*' => 'string',
             'quota' => 'required|integer|min:1',
-            'reserved' => 'required|integer|min:0|lte:quota'
         ];
     }
 }

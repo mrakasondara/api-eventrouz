@@ -8,6 +8,7 @@ use App\Http\Requests\TicketCategoryStoreRequest;
 use App\Http\Resources\TicketCategoryResource;
 use App\Models\Event;
 use App\Models\TicketCategory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -141,12 +142,23 @@ class TicketCategoryController extends Controller
                 ],404);
             }
 
+            // $cleanDate = Carbon::parse($data['event_ticket_date'])->format('Y-m-d');
+
             $ticketCategory = new TicketCategory();
             $ticketCategory->name = $data['name'];
             $ticketCategory->event_id = (int)$event_id;
             $ticketCategory->price = $data['price'];
             $ticketCategory->quota = $data['quota'];
-            $ticketCategory->reserved = $data['reserved'];
+            $ticketCategory->reserved = 0;
+
+            $isPackage = $data['is_package'];
+
+            $ticketCategory->is_package = $isPackage;
+
+            if($isPackage){
+                $ticketCategory->event_ticket_date = $data['event_ticket_date'];
+            }
+
             $ticketCategory->save();
 
             DB::commit();
