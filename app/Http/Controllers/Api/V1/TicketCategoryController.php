@@ -142,8 +142,6 @@ class TicketCategoryController extends Controller
                 ],404);
             }
 
-            // $cleanDate = Carbon::parse($data['event_ticket_date'])->format('Y-m-d');
-
             $ticketCategory = new TicketCategory();
             $ticketCategory->name = $data['name'];
             $ticketCategory->event_id = (int)$event_id;
