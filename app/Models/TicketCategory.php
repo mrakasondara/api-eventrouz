@@ -19,4 +19,8 @@ class TicketCategory extends Model
     public function event(){
         return $this->belongsTo(Event::class);
     }
+
+    public function cartItems(){
+        return $this->hasMany(CartItem::class);
+    }
 }
