@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\TicketCategoryController;
@@ -35,6 +36,11 @@ Route::prefix('v1')->group(function (){
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
+
+        Route::get('/cart', [CartController::class, 'index']);
+        Route::post('/cart', [CartController::class, 'store']);
+        Route::delete('/cart', [CartController::class, 'destroy']);
+        Route::delete('/cart/{id}', [CartController::class, 'remove']);
     });
 
     Route::get('/events', [EventController::class, 'index']);
