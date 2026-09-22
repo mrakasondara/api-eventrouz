@@ -250,7 +250,6 @@ class EventController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Event berhasil dihapus',
-                'data' => $image
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
