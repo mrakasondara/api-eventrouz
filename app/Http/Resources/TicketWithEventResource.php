@@ -19,7 +19,9 @@ class TicketWithEventResource extends JsonResource
             'name' => $this->name,
             'price' => $this->price,
             'quota' => $this->quota,
-            'reserved' => $this->reserved
+            'reserved' => $this->reserved,
+            'is_package' => $this->is_package,
+            'event_ticket_date' => $this->event_ticket_date,
         ];
     }
 }

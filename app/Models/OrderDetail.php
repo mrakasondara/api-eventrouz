@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['order_id','quantity','price','ticket_code', 'ticket_category_id'])]
+#[Fillable(['order_id','quantity','price','ticket_code', 'ticket_category_id', 'event_ticket_date'])]
 class OrderDetail extends Model
 {
     protected $table = 'orders_details';
