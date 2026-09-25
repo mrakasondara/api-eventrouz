@@ -18,6 +18,7 @@ class CartItemTicketResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'price' => $this->price,
+            'is_package' => $this->is_package,
             'event' => new CartItemEventResource($this->whenLoaded('event'))
         ];
     }
