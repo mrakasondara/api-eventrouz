@@ -10,9 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 class CartItem extends Model
 {
 
-    protected $cast = [
-        'event_ticket_date' => 'array'
-    ];
+    protected function casts(): array
+    {
+        return [
+            'event_ticket_date' => 'array',
+        ];
+    }
 
     public function cart(){
         return $this->belongsTo(Cart::class, 'cart_id', 'id');
