@@ -233,10 +233,17 @@ class TicketCategoryController extends Controller
             ], 200);
             
         } catch (\Exception $e) {
+
+            if($e->getCode() === '23000' || str_contains($e->getMessage(), '1451')){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus! Tiket ini telah dipesan oleh pengguna.',
+                ], 500);
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
-                'data' => null
             ], 500);
         }
     }
