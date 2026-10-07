@@ -86,7 +86,7 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cart Item berhasil ditambah.',
+                'message' => 'Item berhasil ditambahkan ke keranjang.',
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
