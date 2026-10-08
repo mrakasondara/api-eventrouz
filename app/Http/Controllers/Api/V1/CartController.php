@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CartBulkDeleteRequest;
 use App\Http\Requests\CartStoreRequest;
 use App\Http\Resources\Cart\CartResource;
 use App\Models\Cart;
@@ -67,12 +68,24 @@ class CartController extends Controller
                     'user_id' => $user->id
             ]);
 
+            
             // check if ticket category exist in cart items
-
-            $cartItem = CartItem::where('cart_id', $userCart['id'])->where('ticket_category_id', $data['ticket_category_id'])->first();
+            $cartItem = CartItem::where('cart_id', $userCart['id'])
+                ->where('ticket_category_id', $data['ticket_category_id'])
+                ->first();
 
             if($cartItem){
-                $cartItem->increment('total_ticket', $data['total_ticket']);
+                if($cartItem['event_ticket_date'] == $data['event_ticket_date']){
+                    $cartItem->increment('total_ticket', $data['total_ticket']);
+                    $cartItem->refresh();
+                } else {
+                    CartItem::create([
+                        'cart_id' => $userCart['id'],
+                        'ticket_category_id' => $data['ticket_category_id'],
+                        'event_ticket_date' => $data['event_ticket_date'] ?? null,
+                        'total_ticket' => $data['total_ticket']
+                    ]);
+                }
             } else {
                 CartItem::create([
                     'cart_id' => $userCart['id'],
@@ -81,7 +94,7 @@ class CartController extends Controller
                     'total_ticket' => $data['total_ticket']
                 ]);
             }
-
+        
             DB::commit();
 
             return response()->json([
@@ -132,6 +145,48 @@ class CartController extends Controller
                 'message' => 'Something error!',
             ], 500);
         }
+    }
+
+    public function bulkDelete(CartBulkDeleteRequest $request)
+    {
+        $user = auth()->user();
+
+        if(!$user){
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $data = $request->validated();
+        $userId = $user->id;
+
+
+        try {
+            // get cart id
+            $cartId = Cart::where('user_id', $userId)->first();
+    
+            if(!$cartId){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cart Item tidak ditemukan',
+                ], 404);
+            }
+    
+            CartItem::where('cart_id', $cartId['id'])
+                ->whereIn('id', $data['cart_item_ids'])->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Item dihapus dari keranjang',
+            ], 200);   
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something error!',
+            ], 500);
+        }
+        
     }
 
     public function destroy(Request $request)
