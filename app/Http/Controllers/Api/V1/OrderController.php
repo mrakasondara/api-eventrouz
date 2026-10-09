@@ -91,6 +91,7 @@ class OrderController extends Controller
                 'quantity' => $item['quantity'],
                 'price' => $category->price,
                 'ticket_code' => 'ETZ-'.Rand(10000,99999),
+                'event_ticket_date' => $item['event_ticket_date'],
             ];
 
             // kurangi stok tiket dan tambah reserved
