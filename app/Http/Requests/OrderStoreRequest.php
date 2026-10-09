@@ -17,7 +17,7 @@ class OrderStoreRequest extends FormRequest
         return [
             'items' => 'required|array|min:1',
             'items.*.ticket_category_id' => 'required|exists:ticket_categories,id',
-            'items.*.event_ticket_date' => 'required|date',
+            'items.*.event_ticket_date' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1'
         ];
     }
