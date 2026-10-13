@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\TicketCategoryController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,9 @@ Route::prefix('v1')->group(function (){
         Route::post('/cart/bulk-delete', [CartController::class, 'bulkDelete']);
         Route::delete('/cart', [CartController::class, 'destroy']);
         Route::delete('/cart/{id}', [CartController::class, 'remove']);
+
+        Route::post('/payment/create/{id}', [PaymentController::class, 'createPayment']);
+        Route::post('/payment/notification', [PaymentController::class, 'paymentNotification']);
     });
 
     Route::get('/events', [EventController::class, 'index']);
