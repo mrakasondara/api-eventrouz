@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
@@ -78,6 +80,15 @@ class PaymentController extends Controller
                 ], 404);
             }
 
+            $vaNumber = null;
+            $bank = null;
+            if (isset($notif->va_numbers[0])) {
+                $vaNumber = $notif->va_numbers[0]->va_number;
+                $bank = $notif->va_numbers[0]->bank;
+            }
+
+            $isPaid = ($transactionStatus == 'capture' && $fraud != 'challenge') || $transactionStatus == 'settlement';
+
             if($transactionStatus == 'capture'){
                 if($type == 'credit_card'){
                     $order->status = ($fraud == 'challenge') ? 'challenge' : 'paid';
@@ -92,10 +103,33 @@ class PaymentController extends Controller
 
             $order->save();
 
+            if($notif->transaction_id){
+                Payment::updateOrCreate(
+                    ['midtrans_transaction_id' => $notif->transaction_id],
+                    [
+                        'order_id' => $order['id'],
+                        'user_id' => $order['user_id'],
+                        'gross_amount' => $order['total_price'],
+                        'payment_type' => $notif->payment_type,
+                        'bank' => $bank ?? $notif->issuer,
+                        'va_number' => $vaNumber,
+                        'payment_status' => $notif->transaction_status,
+                        'fraud_status' => $notif->fraud_status ?? null,
+                        'paid_at' => $notif->transaction_status === 'settlement' ? now() : null,
+                        'snap_response' => json_encode($notif->getResponse())
+                    ]
+                    );
+            }
+
+            if($isPaid){
+                $orderDetail = OrderDetail::where('order_id', $orderId)->first();
+                $orderDetail['ticket_code'] = 'ETZ-'.Rand(10000,99999);
+
+                $orderDetail->save();
+            }
+
             return response()->json(['message' => 'Notification processed successfully', 'data' => $notif->getResponse()],200);
         } catch (\Exception $e) {
-            Log::error('Midtrans Notification Error: ' . $e->getMessage());
-
             return response()->json([
                 'message' => 'Error processing notification',
                 'error' => $e->getMessage()
