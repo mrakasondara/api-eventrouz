@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
@@ -38,6 +39,8 @@ class PaymentController extends Controller
                 'message' => 'Id tidak ditemukan.',
             ], 404);
         };
+        
+        Config::$overrideNotifUrl = config('services.midtrans.override_url');
 
         $params = [
             'transaction_details' => [
@@ -48,10 +51,6 @@ class PaymentController extends Controller
                 'first_name' => auth()->user()->name,
                 'email' => auth()->user()->email
             ],
-            'append_notification_url' => config('services.midtrans.override_url'),
-            'override_notification_urls' => [
-                config('services.midtrans.override_url')
-            ]
         ];
         $snapToken = Snap::getSnapToken($params);
 
@@ -63,35 +62,45 @@ class PaymentController extends Controller
 
     public function handleNotification(Request $request)
     {
-        $notif = new Notification();
+        try {
+            $notif = new Notification();
 
-        $transactionStatus = $notif->transaction_status;
-        $type = $notif->payment_type;
-        $orderId = $notif->order_id;
-        $fraud = $notif->fraud_status;
+            $transactionStatus = $notif->transaction_status ?? null;
+            $type = $notif->payment_type ?? null;
+            $orderId = $notif->order_id ?? null;
+            $fraud = $notif->fraud_status ?? null;
 
-        $order = Order::where('id', $orderId)->first();
+            $order = Order::where('id', $orderId)->first();
 
-        if(!$order){
-            return response()->json([
-                'message' => 'Order not found',
-            ], 404);
-        }
-
-        if($transactionStatus == 'capture'){
-            if($type == 'credit_card'){
-                $order->status = ($fraud == 'challenge') ? 'challenge' : 'success';
+            if(!$order){
+                return response()->json([
+                    'message' => 'Order not found',
+                ], 404);
             }
-        } elseif ($transactionStatus == 'settlement'){
-            $order->status = 'success';
-        } elseif ($transactionStatus == 'pending'){
-            $order->status = 'pending';
-        } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])){
-            $order->status = 'failed';
+
+            if($transactionStatus == 'capture'){
+                if($type == 'credit_card'){
+                    $order->status = ($fraud == 'challenge') ? 'challenge' : 'paid';
+                }
+            } elseif ($transactionStatus == 'settlement'){
+                $order->status = 'paid';
+            } elseif ($transactionStatus == 'pending'){
+                $order->status = 'pending';
+            } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])){
+                $order->status = 'failed';
+            }
+
+            $order->save();
+
+            return response()->json(['message' => 'Notification processed successfully', 'data' => $notif->getResponse()],200);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Notification Error: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Error processing notification',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $order->save();
-
-        return response()->json(['message' => 'Notification processed successfully']);
+        
     }
 }

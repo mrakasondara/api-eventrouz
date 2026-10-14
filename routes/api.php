@@ -45,9 +45,10 @@ Route::prefix('v1')->group(function (){
         Route::delete('/cart/{id}', [CartController::class, 'remove']);
 
         Route::post('/payment/create/{id}', [PaymentController::class, 'createPayment']);
-        Route::post('/payment/notification', [PaymentController::class, 'paymentNotification']);
     });
-
+    
+    Route::post('/payment/notification', [PaymentController::class, 'handleNotification']);
+    
     Route::get('/events', [EventController::class, 'index']);
     Route::get('/events/{id}', [EventController::class, 'show']);
 });
