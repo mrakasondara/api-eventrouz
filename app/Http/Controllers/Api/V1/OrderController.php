@@ -90,7 +90,6 @@ class OrderController extends Controller
                 'ticket_category_id' => $item['ticket_category_id'],
                 'quantity' => $item['quantity'],
                 'price' => $category->price,
-                'ticket_code' => 'ETZ-'.Rand(10000,99999),
                 'event_ticket_date' => $item['event_ticket_date'],
             ];
 
