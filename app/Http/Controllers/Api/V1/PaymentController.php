@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Payment;
+use App\Models\TicketCategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
@@ -98,10 +98,26 @@ class PaymentController extends Controller
             } elseif ($transactionStatus == 'pending'){
                 $order->status = 'pending';
             } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])){
-                $order->status = 'failed';
+
+                if($order->status !== 'failed'){
+                    $order->status = 'failed';
+                    $order->save();
+
+                    $orderDetail = OrderDetail::where('order_id', $orderId)->get();
+    
+                    foreach ($orderDetail as $detail) {
+                        $category = TicketCategory::find($detail->ticket_category_id);
+
+                        if($category){
+                            $category->increment('quota', $detail->quantity);
+                            $category->decrement('reserved', $detail->quantity);
+                            
+                            $category->save();
+                        }
+                    }
+                }
             }
 
-            $order->save();
 
             if($notif->transaction_id){
                 Payment::updateOrCreate(
