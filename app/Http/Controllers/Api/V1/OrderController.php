@@ -18,7 +18,7 @@ class OrderController extends Controller
   {
 
     try {
-        $query = Order::with(['user']);
+        $query = Order::with(['user', 'ordersDetails.ticketCategory.event']);
 
         $isUser = auth()->user()->role === 'user';
 
