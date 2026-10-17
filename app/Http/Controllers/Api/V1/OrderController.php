@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderStoreRequest;
 use App\Http\Resources\Admin\AdminOrderResource;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\OrderWithPaymentResource;
 use App\Models\Order;
 use App\Models\TicketCategory;
 use Illuminate\Http\Request;
@@ -129,18 +130,20 @@ class OrderController extends Controller
   public function show($id) {
     try {
         if(auth()->user()->role == 'admin'){
-            $order = Order::with(['ordersDetails.ticketCategory.event'])
+            $order = Order::with(['ordersDetails.ticketCategory.event','payment.user'])
                 ->findOrFail($id);
         } else {
-            $order = Order::with(['ordersDetails.ticketCategory.event'])
+            $order = Order::with(['ordersDetails.ticketCategory.event','payment.user'])
                 ->where('user_id', auth()->id())
                 ->findOrFail($id);
         }
         
+        $resource = $order['status'] === 'paid' ? new OrderWithPaymentResource($order) : new OrderResource($order);
+
         return response()->json([
             'success' => true,
             'message' => 'Order detail berhasil ditampilkan',
-            'data' => new OrderResource($order)
+            'data' =>  $resource
         ],200);
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         return response()->json([

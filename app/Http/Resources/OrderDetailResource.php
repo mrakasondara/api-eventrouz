@@ -20,7 +20,8 @@ class OrderDetailResource extends JsonResource
             'quantity' => $this->quantity,
             'price' => $this->price,
             'ticket_category_name' => $this->ticketCategory?->name,
-            'event_title' => $this->ticketCategory?->event?->title
+            'event_title' => $this->ticketCategory?->event?->title,
+            'event_ticket_date' => $this->event_ticket_date
         ];
     }
 }
