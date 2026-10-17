@@ -120,7 +120,7 @@ class PaymentController extends Controller
 
 
             if($notif->transaction_id){
-                Payment::updateOrCreate(
+                $payment = Payment::updateOrCreate(
                     ['midtrans_transaction_id' => $notif->transaction_id],
                     [
                         'order_id' => $order['id'],
@@ -135,6 +135,8 @@ class PaymentController extends Controller
                         'snap_response' => json_encode($notif->getResponse())
                     ]
                     );
+                $updateOrder = Order::findOrFail($order['id']);
+                $updateOrder->update(['payment_id' => $payment->id]);
             }
 
             if($isPaid){
