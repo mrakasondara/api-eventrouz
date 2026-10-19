@@ -142,7 +142,7 @@ class OrderController extends Controller
                 ->where('user_id', auth()->id())
                 ->findOrFail($id);
         } else {
-            $order = Order::with(['ordersDetails.ticketCategory.event','payment.user'])
+            $order = Order::with(['user','ordersDetails.ticketCategory.event','payment'])
                 ->findOrFail($id);
         }
         
