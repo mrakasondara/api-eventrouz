@@ -5,10 +5,15 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderStoreRequest;
 use App\Http\Resources\Admin\AdminOrderResource;
+use App\Http\Resources\Admin\AdminOrderWithPaymentResource;
+use App\Http\Resources\Admin\AdminUnpaidOrderResource;
+use App\Http\Resources\OrderDetailResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\OrderWithPaymentResource;
+use App\Http\Resources\UnpaidOrderResource;
 use App\Models\Order;
 use App\Models\TicketCategory;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -129,23 +134,39 @@ class OrderController extends Controller
 
   public function show($id) {
     try {
-        if(auth()->user()->role == 'admin'){
-            $order = Order::with(['ordersDetails.ticketCategory.event','payment.user'])
+
+        $isUser = auth()->user()->role === 'user';
+
+        if($isUser){
+            $order = Order::with(['ordersDetails.ticketCategory.event','payment'])
+                ->where('user_id', auth()->id())
                 ->findOrFail($id);
         } else {
             $order = Order::with(['ordersDetails.ticketCategory.event','payment.user'])
-                ->where('user_id', auth()->id())
                 ->findOrFail($id);
         }
         
-        $resource = $order['status'] === 'paid' ? new OrderWithPaymentResource($order) : new OrderResource($order);
+
+        if($order['status'] == 'paid'){
+            if($isUser){
+                $resource = new OrderWithPaymentResource($order);
+            } else {
+                $resource = new AdminOrderWithPaymentResource($order);
+            }
+        } else {
+            if($isUser){
+                $resource = new UnpaidOrderResource($order);
+            } else {
+                $resource = new AdminUnpaidOrderResource($order);
+            }
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Order detail berhasil ditampilkan',
-            'data' =>  $resource
+            'data' =>  $resource,
         ],200);
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+    } catch (\Exception $e) {
         return response()->json([
             'success' => false,
             'message' => 'Order tidak ditemukan atau Anda tidak memiliki akses.',
