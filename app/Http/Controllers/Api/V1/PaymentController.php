@@ -56,6 +56,9 @@ class PaymentController extends Controller
         ];
         $snapToken = Snap::getSnapToken($params);
 
+        $order['snap_token'] = $snapToken;
+        $order->save();
+
         return response()->json([
             'success' => true,
             'snapToken' => $snapToken 
@@ -85,6 +88,14 @@ class PaymentController extends Controller
             if (isset($notif->va_numbers[0])) {
                 $vaNumber = $notif->va_numbers[0]->va_number;
                 $bank = $notif->va_numbers[0]->bank;
+            } elseif (isset($notif->permata_va_number)) {
+                $vaNumber = $notif->permata_va_number;
+                $bank = 'permata';
+            } elseif (isset($notif->bill_key)) {
+                $vaNumber = $notif->bill_key;
+                $bank = 'mandiri';
+            } else {
+                $bank = $notif->issuer ?? null;
             }
 
             $isPaid = ($transactionStatus == 'capture' && $fraud != 'challenge') || $transactionStatus == 'settlement';
@@ -101,7 +112,6 @@ class PaymentController extends Controller
 
                 if($order->status !== 'failed'){
                     $order->status = 'failed';
-                    $order->save();
 
                     $orderDetail = OrderDetail::where('order_id', $orderId)->get();
     
@@ -118,6 +128,7 @@ class PaymentController extends Controller
                 }
             }
 
+            $order->save();
 
             if($notif->transaction_id){
                 $payment = Payment::updateOrCreate(
@@ -140,10 +151,12 @@ class PaymentController extends Controller
             }
 
             if($isPaid){
-                $orderDetail = OrderDetail::where('order_id', $orderId)->first();
-                $orderDetail['ticket_code'] = 'ETZ-'.Rand(10000,99999);
+                $orderDetails = OrderDetail::where('order_id', $orderId)->get();
 
-                $orderDetail->save();
+                foreach ($orderDetails as $orderDetail) {
+                    $orderDetail['ticket_code'] = 'ETZ-'.Rand(10000,99999);
+                    $orderDetail->save();
+                }
             }
 
             return response()->json(['message' => 'Notification processed successfully', 'data' => $notif->getResponse()],200);

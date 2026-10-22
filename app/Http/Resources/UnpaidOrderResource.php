@@ -18,6 +18,7 @@ class UnpaidOrderResource extends JsonResource
             'id' => $this->id,
             'total_price' => $this->total_price,
             'status' => $this->status,
+            'snap_token' => $this->snap_token,
             'created_at' => $this->created_at->format('d M Y H:i A'),
             'details' => OrderDetailResource::collection($this->whenLoaded('ordersDetails')),
         ];

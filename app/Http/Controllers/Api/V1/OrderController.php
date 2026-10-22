@@ -78,7 +78,7 @@ class OrderController extends Controller
 
         // check if user have pending order
 
-        $pendingOrder = Order::where('user_id', auth()->id())->where('status', 'pending')->get();
+        $pendingOrder = Order::where('user_id', auth()->id())->where('status', 'pending')->exists();
 
         if($pendingOrder){
             return response()->json([
