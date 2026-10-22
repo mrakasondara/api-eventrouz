@@ -76,6 +76,17 @@ class OrderController extends Controller
             ],403);
         }
 
+        // check if user have pending order
+
+        $pendingOrder = Order::where('user_id', auth()->id())->where('status', 'pending')->get();
+
+        if($pendingOrder){
+            return response()->json([
+                'success' => false,
+                'message' => 'Silahkan selesaikan pembayaran sebelumnya terlebih dahulu!',
+             ], 400);
+        }
+
         foreach ($validated['items'] as $item) {
             // cek category
             $category = TicketCategory::lockForUpdate()->findOrFail($item['ticket_category_id']);
