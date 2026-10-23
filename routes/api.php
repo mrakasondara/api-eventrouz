@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\TicketCategoryController;
+use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,8 @@ Route::prefix('v1')->group(function (){
         Route::delete('/cart/{id}', [CartController::class, 'remove']);
 
         Route::post('/payment/create/{id}', [PaymentController::class, 'createPayment']);
+
+        Route::get('/tickets', [TicketController::class, 'index']);
     });
     
     Route::post('/payment/notification', [PaymentController::class, 'handleNotification']);
