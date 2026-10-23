@@ -55,7 +55,6 @@ class AuthController extends Controller
                 return response()->json([
                     'message' => 'Unauthorized!',
                     'success' => false,
-                    'data' => $credentials
                 ], 401);
             }
 
