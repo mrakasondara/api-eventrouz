@@ -53,7 +53,6 @@ class OrderController extends Controller
         return response()->json([
             'success' => false,
             'message' => 'Terjadi kesalahan',
-            'data' => null
         ], 500);
     }
   }
@@ -62,30 +61,31 @@ class OrderController extends Controller
   {
     $validated = $request->validated();
 
+
+    // only user can order ticket
+    if(auth()->user()->role == 'admin'){
+        return response()->json([
+            'success' => false,
+            'message' => 'Hanya user yang memiliki akses.'
+        ],403);
+    }
+
+    // check if user have pending order
+
+    $pendingOrder = Order::where('user_id', auth()->id())->where('status', 'pending')->exists();
+
+    if($pendingOrder){
+        return response()->json([
+            'success' => false,
+            'message' => 'Silahkan selesaikan pembayaran sebelumnya terlebih dahulu!',
+        ], 400);
+    }
+
     DB::beginTransaction();
 
     try {
         $totalPrice = 0;
         $ordersDetailsData = [];
-
-        // only user can order ticket
-        if(auth()->user()->role == 'admin'){
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya user yang memiliki akses.'
-            ],403);
-        }
-
-        // check if user have pending order
-
-        $pendingOrder = Order::where('user_id', auth()->id())->where('status', 'pending')->exists();
-
-        if($pendingOrder){
-            return response()->json([
-                'success' => false,
-                'message' => 'Silahkan selesaikan pembayaran sebelumnya terlebih dahulu!',
-             ], 400);
-        }
 
         foreach ($validated['items'] as $item) {
             // cek category
@@ -93,6 +93,7 @@ class OrderController extends Controller
 
             // cek stock
             if($category->quota < $item['quantity']){
+                DB::rollBack();
                 return response()->json([
                     'message' => "Stok tiket {category->name} tidak mencukupi"
                 ],422);
