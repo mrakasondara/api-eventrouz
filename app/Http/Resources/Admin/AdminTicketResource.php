@@ -20,6 +20,7 @@ class AdminTicketResource extends JsonResource
             'ticket_code' => $this->ticket_code,
             'quantity' => $this->quantity,
             'ticket_date' => $this->event_ticket_date,
+            'ticket_category' => $this->ticketCategory?->name,
             'event_id' => $this->ticketCategory?->event?->id,
             'event_location' => $this->ticketCategory?->event?->location,
             'event_image_thumb_url' => $this->ticketCategory?->event?->image_thumb_url,
