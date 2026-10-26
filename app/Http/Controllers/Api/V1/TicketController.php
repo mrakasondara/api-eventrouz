@@ -34,7 +34,7 @@ class TicketController extends Controller
             $orders = $query->get();
 
             $orders->map(function ($order){
-                $eventDate = $order?->ticketCategory?->event?->start_at;
+                $eventDate = $order?->ticketCategory?->event?->end_at;
                 $order->status_event = $eventDate && Carbon::parse($eventDate)->isPast() ? 'selesai' : 'mendatang';
 
                 return $order;
