@@ -48,6 +48,7 @@ Route::prefix('v1')->group(function (){
         Route::post('/payment/create/{id}', [PaymentController::class, 'createPayment']);
 
         Route::get('/tickets', [TicketController::class, 'index']);
+        Route::post('/tickets/check-in/{ticketCode}', [TicketController::class, 'checkIn']);
     });
     
     Route::post('/payment/notification', [PaymentController::class, 'handleNotification']);
