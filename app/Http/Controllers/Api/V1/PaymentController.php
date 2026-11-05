@@ -83,19 +83,23 @@ class PaymentController extends Controller
                 ], 404);
             }
 
+            $paymentType = $notif->payment_type ?? null;
             $vaNumber = null;
             $bank = null;
-            if (isset($notif->va_numbers[0])) {
-                $vaNumber = $notif->va_numbers[0]->va_number;
-                $bank = $notif->va_numbers[0]->bank;
-            } elseif (isset($notif->permata_va_number)) {
-                $vaNumber = $notif->permata_va_number;
-                $bank = 'permata';
-            } elseif (isset($notif->bill_key)) {
-                $vaNumber = $notif->bill_key;
+
+            if ($paymentType === 'echannel') {
                 $bank = 'mandiri';
+                $vaNumber = $notif->bill_key ?? null;
+            } elseif ($paymentType === 'bank_transfer') {
+                if (isset($notif->va_numbers[0])) {
+                    $bank = $notif->va_numbers[0]->bank;
+                    $vaNumber = $notif->va_numbers[0]->va_number;
+                } elseif (isset($notif->permata_va_number)) {
+                    $bank = 'permata';
+                    $vaNumber = $notif->permata_va_number;
+                }
             } else {
-                $bank = $notif->issuer ?? null;
+                $bank = $notif->issuer ?? $paymentType;
             }
 
             $isPaid = ($transactionStatus == 'capture' && $fraud != 'challenge') || $transactionStatus == 'settlement';
