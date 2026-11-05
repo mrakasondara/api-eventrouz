@@ -16,6 +16,7 @@ use App\Models\TicketCategory;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -158,6 +159,10 @@ class OrderController extends Controller
                 ->findOrFail($id);
         }
         
+        if($order->payment){
+            $maskedVaNumber = Str::mask($order->payment->va_number, '*', -4);
+            $order->payment->va_number = $maskedVaNumber;
+        };
 
         if($order['status'] == 'paid'){
             if($isUser){
