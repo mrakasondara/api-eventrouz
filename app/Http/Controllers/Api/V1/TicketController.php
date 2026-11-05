@@ -9,8 +9,7 @@ use App\Http\Resources\TicketResource;
 use App\Models\OrderDetail;
 use App\Models\TicketCategory;
 use Carbon\Carbon;
-use DateTime;
-use Illuminate\Http\Request;
+
 
 class TicketController extends Controller
 {
@@ -52,7 +51,7 @@ class TicketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
-            ]);
+            ], 400);
         }
     }
 
@@ -67,7 +66,7 @@ class TicketController extends Controller
         }
 
         try {
-            $query = OrderDetail::where('ticket_code', $ticketCode)->where('is_checkin', false)->with(['ticketCategory','order.user']);
+            $query = OrderDetail::where('ticket_code', $ticketCode)->where('is_checkin', false)->with(['ticketCategory.event','order.user']);
             
             
             $ticket = $query->first();
@@ -75,8 +74,28 @@ class TicketController extends Controller
             if(!$ticket){
                 return response()->json([
                     'success' => false,
-                    'message' => 'Check In gagal',
-                ]);
+                    'message' => 'Tiket sudah digunakan atau tidak ditemukan',
+                ], 404);
+            }
+
+            $eventStartAt =  $eventStartAt = explode(" ",$ticket->ticketCategory->event->start_at);;
+            $eventEndAt =  $eventStartAt = explode(" ",$ticket->ticketCategory->event->end_at);;
+
+            $isFuture = Carbon::parse($eventStartAt[0])->isFuture();
+            $isPast = Carbon::parse($eventEndAt[0])->isPast();
+
+            if($isFuture){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Event belum berlangsung',
+                ], 400);
+            }
+
+            if($isPast){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Event Sudah berakhir',
+                ], 400);
             }
 
             $ticket['is_checkin'] = true;
@@ -114,8 +133,7 @@ class TicketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Check In gagal',
-                'data' => $e->getMessage()
-            ]);
+            ], 400);
         }
     }
 
