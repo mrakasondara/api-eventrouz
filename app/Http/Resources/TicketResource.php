@@ -23,6 +23,8 @@ class TicketResource extends JsonResource
             'quantity' => $this->quantity,
             'ticket_date' => $this->event_ticket_date,
             'ticket_category' => $this->ticketCategory?->name,
+            'is_checkin' => $this->is_checkin,
+            'checkin_time' => $this->checkin_time,
             'event_id' => $this->ticketCategory?->event?->id,
             'event_title' => $this->ticketCategory?->event?->title,
             'event_location' => $this->ticketCategory?->event?->location,
