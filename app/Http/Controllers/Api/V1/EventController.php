@@ -22,6 +22,15 @@ class EventController extends Controller
         $this->appwriteStorage = $appwriteStorage;
     }
 
+    public function test()
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Test berhasil',
+            'data' => null
+        ], 200);
+    }
+
     public function index(Request $request)
     {
         try {
@@ -56,7 +65,7 @@ class EventController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
-                'data' => null
+                'data' => $e->getMessage()
             ], 500);
         }
     }
