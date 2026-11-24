@@ -61,6 +61,17 @@
             throw new \Exception("Gagal menghapus file" . $response->body());
         }
 
+        public function putFile(?string $oldFileId, UploadedFile|string $newFileId): array
+        {
+            $uploaded = $this->uploadFile($newFileId);
+
+            if($oldFileId) {
+                $this->deleteFile($oldFileId);
+            }
+
+            return $uploaded;
+        }
+
         public function getFileViewUrl(?string $fileId): ?string
         {
             if(!$fileId) return null;
