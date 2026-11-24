@@ -4,14 +4,24 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateDetailsRequest;
+use App\Http\Requests\UpdateHeaderRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Http\Resources\UserProfileResource;
 use App\Models\User;
+use App\Services\AppwriteStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+
+    protected AppwriteStorageService $appwriteStorage;
+
+    public function __construct(AppwriteStorageService $appwriteStorage)
+    {
+        $this->appwriteStorage = $appwriteStorage;
+    }
+    
     public function index(Request $request)
     {
         if(auth()->user()->role == 'user'){
@@ -70,7 +80,6 @@ class UserController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null,
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -99,8 +108,51 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
-                'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function updateHeaderData(UpdateHeaderRequest $request)
+    {
+
+        
+        try {
+            $data = $request->validated();
+
+            $userId = auth()->user()->id;
+
+            $userData = User::findOrFail($userId);
+
+            $imageRequest = $request->file('image_profile');
+            $oldImage = $userData['image_profile'];
+
+            $userData['name'] = $data['name'];
+
+            if($imageRequest){
+                $response = $this->appwriteStorage->putFile($oldImage, $imageRequest);
+                $fileId = $response['$id'] ?? null;
+
+                if(!$fileId){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mendapatkan File ID dari Appwrite.'
+                    ], 500);
+                }
+
+                $userData['image_profile'] = $fileId;
+            }
+
+            $userData->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil diubah.',
+            ], 200); 
+        } catch (\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan',
+        ], 500);
         }
     }
 }
