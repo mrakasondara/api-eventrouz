@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Services\AppwriteStorageService;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -31,6 +33,8 @@ class User extends Authenticatable
         ];
     }
 
+    protected $appends = ['image_profile_url'];
+
     public function orders()
     {
         return $this->hasMany(Order::class);
@@ -39,5 +43,14 @@ class User extends Authenticatable
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function getImageProfileUrlAttribute(): ?string{
+        if(!$this->image_profile){
+            return null;
+        }
+
+        $appwrite = app(AppwriteStorageService::class);
+        return $appwrite->getFileViewUrl($this->image_profile);
     }
 }
