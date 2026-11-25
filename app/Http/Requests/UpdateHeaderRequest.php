@@ -17,7 +17,7 @@ class UpdateHeaderRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'image_profile' => 'image|mimes:jpeg,png,jpg,webp|max:20480'
+            'image_profile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:20480'
         ];
     }
 }

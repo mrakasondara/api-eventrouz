@@ -114,21 +114,20 @@ class UserController extends Controller
 
     public function updateHeaderData(UpdateHeaderRequest $request)
     {
-
+        $data = $request->validated();
         
         try {
-            $data = $request->validated();
 
             $userId = auth()->user()->id;
 
             $userData = User::findOrFail($userId);
 
-            $imageRequest = $request->file('image_profile');
-            $oldImage = $userData['image_profile'];
-
+            
             $userData['name'] = $data['name'];
-
+            $imageRequest = $request->file('image_profile');
+            
             if($imageRequest){
+                $oldImage = $userData['image_profile'];
                 $response = $this->appwriteStorage->putFile($oldImage, $imageRequest);
                 $fileId = $response['$id'] ?? null;
 
