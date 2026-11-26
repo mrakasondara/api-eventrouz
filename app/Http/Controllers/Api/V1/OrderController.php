@@ -7,7 +7,6 @@ use App\Http\Requests\OrderStoreRequest;
 use App\Http\Resources\Admin\AdminOrderResource;
 use App\Http\Resources\Admin\AdminOrderWithPaymentResource;
 use App\Http\Resources\Admin\AdminUnpaidOrderResource;
-use App\Http\Resources\OrderDetailResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\OrderWithPaymentResource;
 use App\Http\Resources\UnpaidOrderResource;
@@ -140,7 +139,6 @@ class OrderController extends Controller
         return response()->json([
            'success' => false,
            'message' => 'Terjadi Kesalahan',
-           'error' => $e->getMessage()
         ], 500);
     }
   }

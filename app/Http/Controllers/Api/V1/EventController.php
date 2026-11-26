@@ -56,7 +56,6 @@ class EventController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
-                'data' => $e->getMessage()
             ], 500);
         }
     }
@@ -138,7 +137,6 @@ class EventController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi Kesalahan',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -194,7 +192,6 @@ class EventController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null,
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -222,7 +219,6 @@ class EventController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan',
                 'data' => null,
-                'error' => $e->getMessage()
             ], 500);
         }
     }

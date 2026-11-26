@@ -41,7 +41,6 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
                 'success' => false,
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -77,7 +76,6 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
                 'success' => false,
-                'error' => $th->getMessage()
             ], 500);
         }
     }
@@ -105,7 +103,6 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Terjadi Kesalahan',
                 'success' => false,
-                'error' => $e->getMessage()
             ], 500);
         }
     }

@@ -172,7 +172,6 @@ class TicketCategoryController extends Controller
             return response()->json([
                'success' => false,
                'message' => 'Terjadi Kesalahan',
-               'error' => $e->getMessage()
             ], 500);
        }
     }
@@ -205,7 +204,6 @@ class TicketCategoryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi Kesalahan',
-                'error' => $e->getMessage()
              ], 500);
         }
     }

@@ -167,7 +167,6 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error processing notification',
-                'error' => $e->getMessage()
             ], 500);
         }
         
